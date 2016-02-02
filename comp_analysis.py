@@ -143,14 +143,13 @@ SETUP = {
     'linux': {
         'Chrome': {
             'binary': '/usr/bin/google-chrome-unstable',
-            # TODO(ER): Work these out, the paths were weird
-            #'parent_filter': lambda x:
-            #'path_filter': lambda x:
+            'parent_filter': lambda x: 'chrome --type' not in x,
+            'path_filter': lambda x: 'chrome-unstable' in x
         },
         'Firefox': {
             'binary': '/home/erahm/dev/comp_analysis/firefox/firefox-bin',
             'parent_filter': lambda x: 'firefox-bin' in x,
-            'path_filter': lambda x: 'firefox' in x
+            'path_filter': lambda x: 'comp_analysis/firefox' in x
         }
     },
 }
@@ -167,10 +166,10 @@ def test_browser(browser):
     test = MultiTabTest(driver, stats)
     test.open_urls(TEST_SITES[:30], tab_limit=30, settle_wait_time=60)
 
-    driver.quit
+    driver.quit()
   elif browser == 'Firefox':
     test = FirefoxMultiTabTest()
-    test.run_test(config['binary'], stats, TEST_SITES)
+    test.run_test(config['binary'], stats, TEST_SITES[:30])
   elif browser == 'IE':
     # Roughly what we would do if we could do:
     #driver = webdriver.Ie()
