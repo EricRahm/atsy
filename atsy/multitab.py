@@ -32,7 +32,7 @@ class FirefoxMultiTabTest:
   """
   def run_test(self, binary, stats, urls,
                per_tab_pause=PER_TAB_PAUSE,
-               settle_wait_time=SETTLE_WAIT_TIME):
+               settle_wait_time=SETTLE_WAIT_TIME, process_count=1):
     testvars = {
         'perTabPause': per_tab_pause,
         'settleWaitTime': settle_wait_time,
@@ -41,8 +41,7 @@ class FirefoxMultiTabTest:
         'stats': stats,
     }
 
-    e10s = True
-    process_count = 1
+    e10s = process_count > 0
 
     prefs = {
       # disable network access
