@@ -154,22 +154,35 @@ SETUP = {
     },
 }
 
-def test_browser(browser):
+def test_browser(browser, quick=False):
   config = SETUP[mozinfo.os][browser]
   stats = ProcessStats(config['path_filter'], config['parent_filter'])
+
+  if quick:
+    urls = TEST_SITES[:3]
+    test_options = {
+      'per_tab_pause': 1,
+      'settle_wait_time': 0
+    }
+  else:
+    urls = TEST_SITES[:30]
+    test_options = {
+      'per_tab_pause': 10,
+      'settle_wait_time': 60
+    }
 
   if browser == 'Chrome':
     options = webdriver.chrome.options.Options()
     options.binary_location = config['binary']
     driver = webdriver.Chrome(chrome_options=options)
 
-    test = MultiTabTest(driver, stats)
-    test.open_urls(TEST_SITES[:30], tab_limit=30, settle_wait_time=60)
+    test = MultiTabTest(driver, stats, **test_options)
+    test.open_urls(urls)
 
     driver.quit()
   elif browser == 'Firefox':
-    test = FirefoxMultiTabTest()
-    test.run_test(config['binary'], stats, TEST_SITES[:30])
+    test = FirefoxMultiTabTest(config['binary'], stats, **test_options)
+    test.open_urls(urls)
   elif browser == 'IE':
     # Roughly what we would do if we could do:
     #driver = webdriver.Ie()

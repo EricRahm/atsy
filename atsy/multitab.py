@@ -22,7 +22,19 @@ SETTLE_WAIT_TIME = 60
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-class FirefoxMultiTabTest:
+class BaseMultiTabTest:
+    def __init__(self, stats,
+             per_tab_pause=PER_TAB_PAUSE,
+             settle_wait_time=SETTLE_WAIT_TIME):
+        self.per_tab_pause = per_tab_pause
+        self.settle_wait_time = settle_wait_time
+        self.stats = stats
+
+    def open_urls(self, urls):
+        raise NotImplementedError()
+
+
+class FirefoxMultiTabTest(BaseMultiTabTest):
   """
   For Firefox we can't use webdriver with e10s enabled, so instead we use
   marionette directly. See also the test_memory_usage.py file for the
@@ -30,18 +42,25 @@ class FirefoxMultiTabTest:
 
   This is based on the areweslimyet MarionetteTest.
   """
-  def run_test(self, binary, stats, urls,
-               per_tab_pause=PER_TAB_PAUSE,
-               settle_wait_time=SETTLE_WAIT_TIME, process_count=1):
+  def __init__(self, binary, stats, process_count=1,
+          per_tab_pause=PER_TAB_PAUSE,
+          settle_wait_time=SETTLE_WAIT_TIME):
+      BaseMultiTabTest.__init__(
+              self, stats, per_tab_pause, settle_wait_time)
+
+      self.binary = binary
+      self.process_count = process_count
+
+  def open_urls(self, urls):
     testvars = {
-        'perTabPause': per_tab_pause,
-        'settleWaitTime': settle_wait_time,
+        'perTabPause': self.per_tab_pause,
+        'settleWaitTime': self.settle_wait_time,
         'entities': len(urls),
         'urls': urls,
-        'stats': stats,
+        'stats': self.stats,
     }
 
-    e10s = process_count > 0
+    e10s = self.process_count > 0
 
     prefs = {
       # disable network access
@@ -63,7 +82,7 @@ class FirefoxMultiTabTest:
       "browser.tabs.remote.autostart.4": e10s,
       "browser.tabs.remote.autostart.5": e10s,
       "browser.tabs.remote.autostart.6": e10s,
-      "dom.ipc.processCount": process_count,
+      "dom.ipc.processCount": self.process_count,
 
       # prevent "You're using e10s!" dialog from showing up
       "browser.displayedE10SNotice": 1000,
@@ -79,7 +98,7 @@ class FirefoxMultiTabTest:
 
     logger = commandline.setup_logging("MarionetteTest", {})
     runner = MarionetteTestRunner(
-                    binary=binary,
+                    binary=self.binary,
                     profile=profile,
                     logger=logger,
                     startup_timeout=60)
@@ -105,7 +124,7 @@ class FirefoxMultiTabTest:
       shutil.rmtree(profile.profile)
 
 
-class MultiTabTest:
+class MultiTabTest(BaseMultiTabTest):
     """
     Many attempts have been made to make this cross-browser. Unfortunately each browser
     and each OS has its own webdriver deficiencies. The current version seems to work
@@ -145,11 +164,13 @@ class MultiTabTest:
       - Unknown, I chose not to try Opera given it uses blink and we're already
         testing Chrome.
     """
-    def __init__(self, driver, stats):
+    def __init__(self, driver, stats,
+          per_tab_pause=PER_TAB_PAUSE,
+          settle_wait_time=SETTLE_WAIT_TIME):
+        BaseMultiTabTest.__init__(self, stats, per_tab_pause, settle_wait_time)
         self.driver = driver
         self.tabs = driver.window_handles
         self.idx = len(self.tabs) - 1
-        self.stats = stats
 
         # One of the browsers got grumpy if we didn't load a fake page.
         # This probably isn't necessary anymore, but might help in a desparate
@@ -194,9 +215,7 @@ class MultiTabTest:
         time.sleep(SETTLE_WAIT_TIME)
         self.stats.print_stats()
 
-    def open_urls(self, urls,
-        tab_limit=MAX_TABS, per_tab_pause=PER_TAB_PAUSE,
-        settle_wait_time=SETTLE_WAIT_TIME):
+    def open_urls(self, urls, tab_limit=MAX_TABS):
         """
         This works at least on Chrome across platforms.
         """
@@ -221,7 +240,7 @@ class MultiTabTest:
             ctrl_key = Keys.CONTROL
 
           action.key_down(ctrl_key).key_down(Keys.SHIFT).click(tag).key_up(Keys.SHIFT).key_up(ctrl_key).perform()
-          time.sleep(per_tab_pause)
+          time.sleep(self.per_tab_pause)
 
-        time.sleep(settle_wait_time)
-        self.stats.print_stats(True)
+        time.sleep(self.settle_wait_time)
+        self.stats.print_stats()
