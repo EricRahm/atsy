@@ -30,11 +30,13 @@ class FirefoxMultiTabTest:
 
   This is based on the areweslimyet MarionetteTest.
   """
-  def run_test(self, binary, stats, urls):
+  def run_test(self, binary, stats, urls,
+               per_tab_pause=PER_TAB_PAUSE,
+               settle_wait_time=SETTLE_WAIT_TIME):
     testvars = {
-        'perTabPause': PER_TAB_PAUSE,
-        'settleWaitTime': SETTLE_WAIT_TIME,
-        'entities': MAX_TABS,
+        'perTabPause': per_tab_pause,
+        'settleWaitTime': settle_wait_time,
+        'entities': len(urls),
         'urls': urls,
         'stats': stats,
     }
@@ -223,4 +225,4 @@ class MultiTabTest:
           time.sleep(per_tab_pause)
 
         time.sleep(settle_wait_time)
-        self.stats.print_stats()
+        self.stats.print_stats(True)
