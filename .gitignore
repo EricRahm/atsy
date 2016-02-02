@@ -62,4 +62,10 @@ target/
 .ipynb_checkpoints
 
 # Vim
-# *.swp
+*.swp
+
+# Virtual env
+venv/
+
+# drivers we might install
+chromedriver
