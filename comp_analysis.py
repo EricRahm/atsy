@@ -118,13 +118,12 @@ SETUP = {
     'mac': {
       'Firefox': {
         'binary': '/Users/ericrahm/dev/mozilla-central/obj-x86_64-apple-darwin14.5.0-release/dist/Nightly.app/Contents/MacOS/firefox',
-        'parent_filter': lambda x: 'firefox-bin' in x,
-        'path_filter': lambda x: 'Nightly.app' in x
+        'parent_filter': lambda x: 'firefox' in x,
+        'path_filter': lambda x: '/Nightly.app/' in x
       },
       'Chrome': {
         'binary': '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
-        # TODO(ER): I'm not sure if this is right
-        'parent_filter': lambda x: 'Google Chrome Canary" --type' not in x,
+        'parent_filter': lambda x: 'Google Chrome Helper' not in x,
         'path_filter': lambda x: 'Google Chrome Canary.app' in x
       },
     },

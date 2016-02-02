@@ -51,7 +51,7 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
       self.binary = binary
       self.process_count = process_count
 
-  def open_urls(self, urls):
+  def open_urls(self, urls, marionette_port=24242):
     testvars = {
         'perTabPause': self.per_tab_pause,
         'settleWaitTime': self.settle_wait_time,
@@ -88,7 +88,10 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
       "browser.displayedE10SNotice": 1000,
 
       # override image expiration in hopes of getting less volatile numbers
-      "image.mem.surfacecache.min_expiration_ms": 10000
+      "image.mem.surfacecache.min_expiration_ms": 10000,
+
+      # Specify a communications port
+      "marionette.defaultPrefs.port": marionette_port,
     }
 
     profile = mozprofile.FirefoxProfile(preferences=prefs)
@@ -101,7 +104,8 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
                     binary=self.binary,
                     profile=profile,
                     logger=logger,
-                    startup_timeout=60)
+                    startup_timeout=60,
+                    address="localhost:%d" % marionette_port)
 
     # Add our testvars
     runner.testvars.update(testvars)
@@ -112,6 +116,7 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
       runner.run_tests([test_path])
       failures = runner.failed
     except Exception, e:
+      print e
       pass
 
     try:
