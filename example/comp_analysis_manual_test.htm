@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>AreTheySlimYet - Manual test</title>
+
+<script>
+
+"use strict";
+
+var running = false;
+var siteIndex = 0;
+
+var sites = [
+  "http://localhost:8001/tp5/thesartorialist.blogspot.com/thesartorialist.blogspot.com/index.html",
+  "http://localhost:8002/tp5/cakewrecks.blogspot.com/cakewrecks.blogspot.com/index.html",
+  "http://localhost:8003/tp5/baidu.com/www.baidu.com/s@wd=mozilla.html",
+  "http://localhost:8004/tp5/en.wikipedia.org/en.wikipedia.org/wiki/Rorschach_test.html",
+  "http://localhost:8005/tp5/twitter.com/twitter.com/ICHCheezburger.html",
+  "http://localhost:8006/tp5/msn.com/www.msn.com/index.html",
+  "http://localhost:8007/tp5/yahoo.co.jp/www.yahoo.co.jp/index.html",
+  "http://localhost:8008/tp5/amazon.com/www.amazon.com/Kindle-Wireless-Reader-Wifi-Graphite/dp/B002Y27P3M/507846.html",
+  "http://localhost:8009/tp5/linkedin.com/www.linkedin.com/in/christopherblizzard@goback=.nppvan_%252Flemuelf.html",
+  "http://localhost:8010/tp5/bing.com/www.bing.com/search@q=mozilla&go=&form=QBLH&qs=n&sk=&sc=8-0.html",
+  "http://localhost:8011/tp5/icanhascheezburger.com/icanhascheezburger.com/index.html",
+  "http://localhost:8012/tp5/yandex.ru/yandex.ru/yandsearch@text=mozilla&lr=21215.html",
+  "http://localhost:8013/tp5/cgi.ebay.com/cgi.ebay.com/ALL-NEW-KINDLE-3-eBOOK-WIRELESS-READING-DEVICE-W-WIFI-/130496077314@pt=LH_DefaultDomain_0&hash=item1e622c1e02.html",
+  "http://localhost:8014/tp5/163.com/www.163.com/index.html",
+  "http://localhost:8015/tp5/mail.ru/mail.ru/index.html",
+  "http://localhost:8016/tp5/bbc.co.uk/www.bbc.co.uk/news/index.html",
+  "http://localhost:8017/tp5/store.apple.com/store.apple.com/us@mco=Nzc1MjMwNA.html",
+  "http://localhost:8018/tp5/imdb.com/www.imdb.com/title/tt1099212/index.html",
+  "http://localhost:8019/tp5/mozilla.com/www.mozilla.com/en-US/firefox/all-older.html",
+  "http://localhost:8020/tp5/ask.com/www.ask.com/web@q=What%27s+the+difference+between+brown+and+white+eggs%253F&gc=1&qsrc=3045&o=0&l=dir.html",
+  "http://localhost:8021/tp5/cnn.com/www.cnn.com/index.html",
+  "http://localhost:8022/tp5/sohu.com/www.sohu.com/index.html",
+  "http://localhost:8023/tp5/vkontakte.ru/vkontakte.ru/help.php@page=about.html",
+  "http://localhost:8024/tp5/youku.com/www.youku.com/index.html",
+  "http://localhost:8025/tp5/myparentswereawesome.tumblr.com/myparentswereawesome.tumblr.com/index.html",
+  "http://localhost:8026/tp5/ifeng.com/ifeng.com/index.html",
+  "http://localhost:8027/tp5/ameblo.jp/ameblo.jp/index.html",
+  "http://localhost:8028/tp5/tudou.com/www.tudou.com/index.html",
+  "http://localhost:8029/tp5/chemistry.about.com/chemistry.about.com/index.html",
+  "http://localhost:8030/tp5/beatonna.livejournal.com/beatonna.livejournal.com/index.html",
+];
+
+var windows = Array();
+var startTime = 0;
+var closeWindows = false;
+
+function $(n)
+{
+  return document.getElementById(n);
+}
+
+function print(x)
+{
+  var outputDiv = $("output");
+  var div = document.createElement("div");
+  div.innerHTML = (typeof x === "string") ? x : JSON.stringify(x);
+  outputDiv.appendChild(div);
+}
+
+function startTest() {
+    if (running) {
+        print("Testing is in progress, please wait until it has finished");
+        return false;
+    }
+    closeWindows = $("close_windows").checked;
+    print("Started");
+    startTime = Date.now();
+    running = true;
+    nextPage();
+}
+
+function nextPage() {
+    if (siteIndex < sites.length) {
+        load_page(siteIndex);
+        window.document.title = "MemBench: opened " + (siteIndex + 1) + " / " + sites.length;
+        siteIndex++;
+        setTimeout("nextPage()", 1500);
+    } else {
+        setTimeout("finish()", 60000);
+    }
+}
+
+function finish() {
+    running = false;
+    if (closeWindows) closeOpenedWindows();
+    window.alert("Finished");
+}
+
+function closeOpenedWindows() {
+    for (var i = 0; i < sites.length; i++) {
+        if (windows[i]) {
+            windows[i].close();
+            windows[i] = null;
+        }
+    }
+    window.document.title = "MemBench: closed all opened windows";
+    print("Close all opened windows");
+    running = false;
+}
+
+function load_page(n) {
+    print("- Open " + n + ": " + sites[n] + " " + (Date.now() - startTime));
+    windows[n] = window.open(sites[n]);
+    if (!closeWindows) {
+        windows[n] = null
+    }
+}
+
+</script>
+
+</head>
+<body>
+<h1>MemBench</h1>
+
+<p>Note: This is based a copy of <a href="http://people.mozilla.org/~wmccloskey/mem.htm">Gregor Wagners membench test</a>
+</p>
+
+<p>This benchmark automatically opens 30 sites with a 10 second pause after each new site. A textbox appears 60 seconds after the last page is loaded indicating that the benchmark has finished. <br>
+    You can see detailed information about your memory behavior if you type <code>about:memory</code> in your Firefox URL bar.<br>
+</p>
+<p>
+	You will most likely have to disable the popup blocker for this site.
+</p>
+
+<button id="button" onclick="startTest()">Start</button>
+
+<input type="checkbox" id="close_windows" value="yes"> <label for="close_windows">Close windows after test finishes</label>
+
+<div id="output"></div>
+</body>
+</html>
