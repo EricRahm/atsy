@@ -9,7 +9,9 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import mozinfo
 
 from atsy.stats import ProcessStats
-from atsy.multitab import (FirefoxMultiTabTest, MultiTabTest)
+from atsy.multitab import (FirefoxMultiTabTest, ManualMultiTabTest, MultiTabTest)
+
+import os
 
 
 # Talos TP5
@@ -129,6 +131,13 @@ SETUP = {
         'parent_filter': lambda x: 'Google Chrome Helper' not in x,
         'path_filter': lambda x: 'Google Chrome Canary.app' in x
       },
+      'Safari': {
+          'binary': '/Applications/Safari.app/Contents/MacOS/Safari',
+          # We'll treat anything that's not 'WebContent' as a parent
+          'parent_filter':  lambda x: 'WebContent' not in x,
+          # Safari uses a fair amount of system processes, this probably isn't all of them
+          'path_filter': lambda x: any(a in x for a in ('ComponentHelper', 'SandboxHelper', 'Safari', 'WebKit'))
+      }
     },
     'win': {
         'Chrome': {
@@ -192,38 +201,13 @@ def test_browser(browser, quick=False):
     #test.open_urls(TEST_SITES[:30], tab_limit=30, settle_wait_time=60)
     #driver.quit()
     raise Exception("IE is not implemented yet.")
+  elif browser == 'Safari':
+    # Currently this is a manual test, sorry.
+    manual_test = os.path.join(os.path.dirname(__file__), 'comp_analysis_manual_test.htm')
+    test = ManualMultiTabTest(config['binary'], stats, **test_options)
+    test.open_urls([manual_test])
   else:
     raise Exception("Unhandled browser: %s" % browser)
-
-# Left for posterity, someday this might work:
-#elif browser == "FirefoxActuallyWorks":
-  # This is busted for several reasons:
-  #   - wires doesn't support setting preferences
-  #     https://github.com/jgraham/wires/issues/27
-  #   - wires doesn't support e10s
-  #     https://github.com/jgraham/wires/issues/43
-#  firefox_profile = webdriver.FirefoxProfile()
-#  # Make sure e10s is *really* enabled.
-#  firefox_profile.set_preference("browser.tabs.remote.autostart", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart1", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart2", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart3", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart4", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart5", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart6", True)
-#  firefox_profile.set_preference("browser.tabs.remote.autostart7", True)
-#  # Specify the number of content processes.
-#  firefox_profile.set_preference("dom.ipc.processCount", 1)
-#  # Don't tell us we're using e10s.
-#  firefox_profile.set_preference("browser.displayedE10SNotice", 1000)
-#
-#  firefox_capabilities = DesiredCapabilities.FIREFOX.copy()
-#  firefox_capabilities['marionette'] = True
-  #firefox_capabilities['firefox_profile'] = firefox_profile.encoded
-  #firefox_capabilities['binary'] = '/Applications/FirefoxNightly.app/Contents/MacOS/firefox'
-#  firefox_capabilities.update(SETUP[mozinfo.os]['Firefox'])
-#
-#  driver = webdriver.Firefox(capabilities=firefox_capabilities)
 
 test_browser("Chrome")
 test_browser("Firefox")
@@ -232,5 +216,5 @@ if mozinfo.os == "win":
   #test_browser("IE")
   pass
 elif mozinfo.os == "mac":
-  #test_browser("Safari")
+  test_browser("Safari")
   pass

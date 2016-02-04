@@ -47,10 +47,21 @@ var sites = [
 var windows = Array();
 var startTime = 0;
 var closeWindows = false;
+var perTabPause = 10000;
+var settleWaitTime = 60000;
 
 function $(n)
 {
   return document.getElementById(n);
+}
+
+function getParam(name, val) {
+    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    if (match) {
+        return match[1];
+    } else {
+        return val;
+    }
 }
 
 function print(x)
@@ -66,6 +77,10 @@ function startTest() {
         print("Testing is in progress, please wait until it has finished");
         return false;
     }
+
+    perTabPause = getParam("per_tab_pause", perTabPause);
+    settleWaitTime = getParam("settle_wait_time", settleWaitTime);
+
     closeWindows = $("close_windows").checked;
     print("Started");
     startTime = Date.now();
@@ -78,9 +93,9 @@ function nextPage() {
         load_page(siteIndex);
         window.document.title = "MemBench: opened " + (siteIndex + 1) + " / " + sites.length;
         siteIndex++;
-        setTimeout("nextPage()", 1500);
+        setTimeout("nextPage()", perTabPause);
     } else {
-        setTimeout("finish()", 60000);
+        setTimeout("finish()", settleWaitTime);
     }
 }
 

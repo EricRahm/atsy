@@ -13,6 +13,8 @@ import mozprofile
 
 import os
 import shutil
+import subprocess
+import sys
 import time
 
 # Maximum number of tabs to open
@@ -37,6 +39,31 @@ class BaseMultiTabTest:
     def open_urls(self, urls):
         raise NotImplementedError()
 
+
+class ManualMultiTabTest(BaseMultiTabTest):
+    def __init__(self, binary, stats, per_tab_pause=PER_TAB_PAUSE,
+            settle_wait_time=SETTLE_WAIT_TIME):
+        BaseMultiTabTest.__init__(self, stats, per_tab_pause, settle_wait_time)
+        self.binary = binary
+
+    def open_urls(self, urls):
+        if len(urls) != 1:
+            raise Exception("The manual test requires exactly one URL.")
+
+        # Safari prefixes all command-line urls w/ 'file://', escapes the '?'
+        # in the query string. So lets just not do that.
+        #manual_test_file = \
+        #    "%s?per_tab_pause=%d&settle_wait_time=%d" % \
+        #        (urls[0], self.per_tab_pause, self.settle_wait_time)
+        manual_test_file = urls[0]
+
+        p = subprocess.Popen([self.binary, manual_test_file], close_fds=True)
+
+        print "Do what the page says, then press enter when it's done loading the tests."
+        sys.stdin.read(1)
+
+        self.stats.print_stats(verbose=True)
+        p.kill()
 
 class FirefoxMultiTabTest(BaseMultiTabTest):
   """
