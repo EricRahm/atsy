@@ -149,6 +149,16 @@ SETUP = {
              'binary': r'c:\dev\comp_analysis\2016-01-26-03-02-44-mozilla-central-firefox-47\core\firefox.exe',
              'parent_filter': lambda x: 'firefox.exe' in x,
              'path_filter': lambda x: 'mozilla-central' in x
+        },
+        'IE': {
+            'binary': r'C:\Program Files\Internet Explorer\iexplore.exe',
+            'parent_filter': lambda x: 'iexplore.exe' in x,
+            'path_filter': lambda x: 'Internet Explorer' in x
+        },
+        'Edge': {
+            'binary': None,
+            'parent_filter': lambda x: 'microsoftedgecp.exe' not in x,
+            'path_filter': lambda x: 'MicrosoftEdge' in x
         }
     },
     'linux': {
@@ -194,18 +204,21 @@ def test_browser(browser, quick=False):
   elif browser == 'Firefox':
     test = FirefoxMultiTabTest(config['binary'], stats, **test_options)
     test.open_urls(urls)
-  elif browser == 'IE':
-    # Roughly what we would do if we could do:
-    #driver = webdriver.Ie()
-    #test = MultiTabTest(driver, stats)
-    #test.open_urls(TEST_SITES[:30], tab_limit=30, settle_wait_time=60)
-    #driver.quit()
-    raise Exception("IE is not implemented yet.")
-  elif browser == 'Safari':
+  elif browser in ('Safari', 'IE'):
     # Currently this is a manual test, sorry.
-    manual_test = os.path.join(os.path.dirname(__file__), 'comp_analysis_manual_test.htm')
+    manual_test = os.path.abspath(os.path.join(os.path.dirname(__file__), 'comp_analysis_manual_test.htm'))
     test = ManualMultiTabTest(config['binary'], stats, **test_options)
-    test.open_urls([manual_test])
+    prefix = "file://" if browser == "IE" else ""
+    test.open_urls([prefix + manual_test])
+  elif browser == 'Edge':
+    # Currently this is even more manual than IE and Safari. Edge won't
+    # let us provide a path to launch.
+    print "Open up explorer, find 'atsy/example/comp_analysis_manual_test.htm'"
+    print "Right-click, 'Open with' -> 'Microsoft Edge'"
+    print "Run the test, press enter when it's done."
+    import sys
+    sys.stdin.read(1)
+    stats.print_stats()
   else:
     raise Exception("Unhandled browser: %s" % browser)
 
@@ -213,8 +226,8 @@ test_browser("Chrome")
 test_browser("Firefox")
 
 if mozinfo.os == "win":
-  #test_browser("IE")
-  pass
+  test_browser("IE")
+  if mozinfo.version.startswith("10"):
+    test_browser("Edge")
 elif mozinfo.os == "mac":
   test_browser("Safari")
-  pass
