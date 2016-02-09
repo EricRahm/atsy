@@ -66,98 +66,98 @@ class ManualMultiTabTest(BaseMultiTabTest):
         p.kill()
 
 class FirefoxMultiTabTest(BaseMultiTabTest):
-  """
-  For Firefox we can't use webdriver with e10s enabled, so instead we use
-  marionette directly. See also the test_memory_usage.py file for the
-  actual test implementation.
+    """
+    For Firefox we can't use webdriver with e10s enabled, so instead we use
+    marionette directly. See also the test_memory_usage.py file for the
+    actual test implementation.
 
-  This is based on the areweslimyet MarionetteTest.
-  """
-  def __init__(self, binary, stats, process_count=1,
-          per_tab_pause=PER_TAB_PAUSE,
-          settle_wait_time=SETTLE_WAIT_TIME):
-      BaseMultiTabTest.__init__(
-              self, stats, per_tab_pause, settle_wait_time)
+    This is based on the areweslimyet MarionetteTest.
+    """
+    def __init__(self, binary, stats, process_count=1,
+            per_tab_pause=PER_TAB_PAUSE,
+            settle_wait_time=SETTLE_WAIT_TIME):
+        BaseMultiTabTest.__init__(
+                self, stats, per_tab_pause, settle_wait_time)
 
-      self.binary = binary
-      self.process_count = process_count
+        self.binary = binary
+        self.process_count = process_count
 
-  def open_urls(self, urls, marionette_port=24242):
-    testvars = {
-        'perTabPause': self.per_tab_pause,
-        'settleWaitTime': self.settle_wait_time,
-        'entities': len(urls),
-        'urls': urls,
-        'stats': self.stats,
-    }
+    def open_urls(self, urls, marionette_port=24242):
+        testvars = {
+            'perTabPause': self.per_tab_pause,
+            'settleWaitTime': self.settle_wait_time,
+            'entities': len(urls),
+            'urls': urls,
+            'stats': self.stats,
+        }
 
-    e10s = self.process_count > 0
+        e10s = self.process_count > 0
 
-    prefs = {
-      # disable network access
-      "network.proxy.socks": "localhost",
-      "network.proxy.socks_port": testvars.get("proxyPort", 3128),
-      "network.proxy.socks_remote_dns": True,
-      "network.proxy.type": 1, # Socks
+        prefs = {
+          # disable network access
+          "network.proxy.socks": "localhost",
+          "network.proxy.socks_port": testvars.get("proxyPort", 3128),
+          "network.proxy.socks_remote_dns": True,
+          "network.proxy.type": 1, # Socks
 
-      # Don't open the first-run dialog, it loads a video
-      'startup.homepage_welcome_url': '',
-      'startup.homepage_override_url': '',
-      'browser.newtab.url': 'about:blank',
+          # Don't open the first-run dialog, it loads a video
+          'startup.homepage_welcome_url': '',
+          'startup.homepage_override_url': '',
+          'browser.newtab.url': 'about:blank',
 
-      # make sure e10s is enabled
-      "browser.tabs.remote.autostart": e10s,
-      "browser.tabs.remote.autostart.1": e10s,
-      "browser.tabs.remote.autostart.2": e10s,
-      "browser.tabs.remote.autostart.3": e10s,
-      "browser.tabs.remote.autostart.4": e10s,
-      "browser.tabs.remote.autostart.5": e10s,
-      "browser.tabs.remote.autostart.6": e10s,
-      "dom.ipc.processCount": self.process_count,
+          # make sure e10s is enabled
+          "browser.tabs.remote.autostart": e10s,
+          "browser.tabs.remote.autostart.1": e10s,
+          "browser.tabs.remote.autostart.2": e10s,
+          "browser.tabs.remote.autostart.3": e10s,
+          "browser.tabs.remote.autostart.4": e10s,
+          "browser.tabs.remote.autostart.5": e10s,
+          "browser.tabs.remote.autostart.6": e10s,
+          "dom.ipc.processCount": self.process_count,
 
-      # prevent "You're using e10s!" dialog from showing up
-      "browser.displayedE10SNotice": 1000,
+          # prevent "You're using e10s!" dialog from showing up
+          "browser.displayedE10SNotice": 1000,
 
-      # override image expiration in hopes of getting less volatile numbers
-      "image.mem.surfacecache.min_expiration_ms": 10000,
+          # override image expiration in hopes of getting less volatile numbers
+          "image.mem.surfacecache.min_expiration_ms": 10000,
 
-      # Specify a communications port
-      "marionette.defaultPrefs.port": marionette_port,
-    }
+          # Specify a communications port
+          "marionette.defaultPrefs.port": marionette_port,
+        }
 
-    profile = mozprofile.FirefoxProfile(preferences=prefs)
+        profile = mozprofile.FirefoxProfile(preferences=prefs)
 
-    # TODO(ER): Figure out how to turn on debug level info again
-    #commandline.formatter_option_defaults['level'] = 'debug'
+        # TODO(ER): Figure out how to turn on debug level info again
+        #commandline.formatter_option_defaults['level'] = 'debug'
 
-    logger = commandline.setup_logging("MarionetteTest", {})
-    runner = MarionetteTestRunner(
-                    binary=self.binary,
-                    profile=profile,
-                    logger=logger,
-                    startup_timeout=60,
-                    address="localhost:%d" % marionette_port)
+        logger = commandline.setup_logging("MarionetteTest", {})
+        runner = MarionetteTestRunner(
+                        binary=self.binary,
+                        profile=profile,
+                        logger=logger,
+                        startup_timeout=60,
+                        address="localhost:%d" % marionette_port)
 
-    # Add our testvars
-    runner.testvars.update(testvars)
+        # Add our testvars
+        runner.testvars.update(testvars)
 
-    test_path = os.path.join(MODULE_DIR, "test_memory_usage.py")
-    try:
-      print "Marionette - running test"
-      runner.run_tests([test_path])
-      failures = runner.failed
-    except Exception, e:
-      print e
-      pass
+        test_path = os.path.join(MODULE_DIR, "test_memory_usage.py")
+        try:
+            print "Marionette - running test"
+            runner.run_tests([test_path])
+            failures = runner.failed
+        except Exception, e:
+            print e
+            pass
 
-    try:
-      runner.cleanup()
-    except Exception, e:
-      print "Failed to cleanup"
+        try:
+            runner.cleanup()
+        except Exception, e:
+            print "Failed to cleanup"
 
-    # cleanup the profile dir if not already cleaned up
-    if os.path.exists(profile.profile):
-      shutil.rmtree(profile.profile)
+        # cleanup the profile dir if not already cleaned up
+        if os.path.exists(profile.profile):
+            shutil.rmtree(profile.profile)
 
 
 class MultiTabTest(BaseMultiTabTest):
@@ -268,15 +268,15 @@ class MultiTabTest(BaseMultiTabTest):
 
         # Now open each document in a new tab by ctrl+shift clicking the anchor.
         for tag in self.driver.find_elements_by_tag_name("a"):
-          action = ActionChains(self.driver)
+            action = ActionChains(self.driver)
 
-          if mozinfo.os == "mac":
-            ctrl_key = Keys.COMMAND
-          else:
-            ctrl_key = Keys.CONTROL
+            if mozinfo.os == "mac":
+                ctrl_key = Keys.COMMAND
+            else:
+                ctrl_key = Keys.CONTROL
 
-          action.key_down(ctrl_key).key_down(Keys.SHIFT).click(tag).key_up(Keys.SHIFT).key_up(ctrl_key).perform()
-          time.sleep(self.per_tab_pause)
+            action.key_down(ctrl_key).key_down(Keys.SHIFT).click(tag).key_up(Keys.SHIFT).key_up(ctrl_key).perform()
+            time.sleep(self.per_tab_pause)
 
         time.sleep(self.settle_wait_time)
         self.stats.print_stats()

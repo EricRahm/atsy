@@ -176,58 +176,58 @@ SETUP = {
 }
 
 def test_browser(browser, quick=False):
-  config = SETUP[mozinfo.os][browser]
-  stats = ProcessStats(config['path_filter'], config['parent_filter'])
+    config = SETUP[mozinfo.os][browser]
+    stats = ProcessStats(config['path_filter'], config['parent_filter'])
 
-  if quick:
-    urls = TEST_SITES[:3]
-    test_options = {
-      'per_tab_pause': 1,
-      'settle_wait_time': 0
-    }
-  else:
-    urls = TEST_SITES[:30]
-    test_options = {
-      'per_tab_pause': 10,
-      'settle_wait_time': 60
-    }
+    if quick:
+        urls = TEST_SITES[:3]
+        test_options = {
+          'per_tab_pause': 1,
+          'settle_wait_time': 0
+        }
+    else:
+        urls = TEST_SITES[:30]
+        test_options = {
+          'per_tab_pause': 10,
+          'settle_wait_time': 60
+        }
 
-  if browser == 'Chrome':
-    options = webdriver.chrome.options.Options()
-    options.binary_location = config['binary']
-    driver = webdriver.Chrome(chrome_options=options)
+    if browser == 'Chrome':
+        options = webdriver.chrome.options.Options()
+        options.binary_location = config['binary']
+        driver = webdriver.Chrome(chrome_options=options)
 
-    test = MultiTabTest(driver, stats, **test_options)
-    test.open_urls(urls)
+        test = MultiTabTest(driver, stats, **test_options)
+        test.open_urls(urls)
 
-    driver.quit()
-  elif browser == 'Firefox':
-    test = FirefoxMultiTabTest(config['binary'], stats, **test_options)
-    test.open_urls(urls)
-  elif browser in ('Safari', 'IE'):
-    # Currently this is a manual test, sorry.
-    manual_test = os.path.abspath(os.path.join(os.path.dirname(__file__), 'comp_analysis_manual_test.htm'))
-    test = ManualMultiTabTest(config['binary'], stats, **test_options)
-    prefix = "file://" if browser == "IE" else ""
-    test.open_urls([prefix + manual_test])
-  elif browser == 'Edge':
-    # Currently this is even more manual than IE and Safari. Edge won't
-    # let us provide a path to launch.
-    print "Open up explorer, find 'atsy/example/comp_analysis_manual_test.htm'"
-    print "Right-click, 'Open with' -> 'Microsoft Edge'"
-    print "Run the test, press enter when it's done."
-    import sys
-    sys.stdin.read(1)
-    stats.print_stats()
-  else:
-    raise Exception("Unhandled browser: %s" % browser)
+        driver.quit()
+    elif browser == 'Firefox':
+        test = FirefoxMultiTabTest(config['binary'], stats, **test_options)
+        test.open_urls(urls)
+    elif browser in ('Safari', 'IE'):
+        # Currently this is a manual test, sorry.
+        manual_test = os.path.abspath(os.path.join(os.path.dirname(__file__), 'comp_analysis_manual_test.htm'))
+        test = ManualMultiTabTest(config['binary'], stats, **test_options)
+        prefix = "file://" if browser == "IE" else ""
+        test.open_urls([prefix + manual_test])
+    elif browser == 'Edge':
+        # Currently this is even more manual than IE and Safari. Edge won't
+        # let us provide a path to launch.
+        print "Open up explorer, find 'atsy/example/comp_analysis_manual_test.htm'"
+        print "Right-click, 'Open with' -> 'Microsoft Edge'"
+        print "Run the test, press enter when it's done."
+        import sys
+        sys.stdin.read(1)
+        stats.print_stats()
+    else:
+        raise Exception("Unhandled browser: %s" % browser)
 
 test_browser("Chrome")
 test_browser("Firefox")
 
 if mozinfo.os == "win":
-  test_browser("IE")
-  if mozinfo.version.startswith("10"):
-    test_browser("Edge")
+    test_browser("IE")
+    if mozinfo.version.startswith("10"):
+        test_browser("Edge")
 elif mozinfo.os == "mac":
-  test_browser("Safari")
+    test_browser("Safari")

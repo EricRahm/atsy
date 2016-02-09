@@ -89,9 +89,9 @@ class TestMemoryUsage(MarionetteTestCase):
         # NB: As a work-around for an e10s marionette bug, only select the tab
         #     if we're really switching tabs.
         if tabs_loaded > 1:
-          self.logger.debug("switching to tab")
-          self.marionette.switch_to_window(tab)
-          self.logger.debug("switched to tab")
+            self.logger.debug("switching to tab")
+            self.marionette.switch_to_window(tab)
+            self.logger.debug("switched to tab")
 
         with self.marionette.using_context('content'):
             self.logger.info("loading %s" % page_to_load)
@@ -100,13 +100,13 @@ class TestMemoryUsage(MarionetteTestCase):
 
         # On e10s the tab handle can change after actually loading content
         if is_new_tab:
-          # First build a set up w/o the current tab
-          old_tabs = set(self.tabs)
-          old_tabs.remove(tab)
-          # Perform a set diff to get the (possibly) new handle
-          [new_tab] = set(self.marionette.window_handles) - old_tabs
-          # Update the tab list at the current index to preserve the tab ordering
-          self.tabs[tab_idx] = new_tab
+            # First build a set up w/o the current tab
+            old_tabs = set(self.tabs)
+            old_tabs.remove(tab)
+            # Perform a set diff to get the (possibly) new handle
+            [new_tab] = set(self.marionette.window_handles) - old_tabs
+            # Update the tab list at the current index to preserve the tab ordering
+            self.tabs[tab_idx] = new_tab
 
         # give the page time to settle
         time.sleep(self.perTabPause)
