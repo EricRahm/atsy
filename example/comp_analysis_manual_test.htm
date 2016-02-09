@@ -56,12 +56,12 @@ function $(n)
 }
 
 function getParam(name, val) {
-    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-    if (match) {
-        return match[1];
-    } else {
-        return val;
-    }
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  if (match) {
+    return match[1];
+  } else {
+    return val;
+  }
 }
 
 function print(x)
@@ -73,56 +73,56 @@ function print(x)
 }
 
 function startTest() {
-    if (running) {
-        print("Testing is in progress, please wait until it has finished");
-        return false;
-    }
+  if (running) {
+    print("Testing is in progress, please wait until it has finished");
+    return false;
+  }
 
-    perTabPause = getParam("per_tab_pause", perTabPause);
-    settleWaitTime = getParam("settle_wait_time", settleWaitTime);
+  perTabPause = getParam("per_tab_pause", perTabPause);
+  settleWaitTime = getParam("settle_wait_time", settleWaitTime);
 
-    closeWindows = $("close_windows").checked;
-    print("Started");
-    startTime = Date.now();
-    running = true;
-    nextPage();
+  closeWindows = $("close_windows").checked;
+  print("Started");
+  startTime = Date.now();
+  running = true;
+  nextPage();
 }
 
 function nextPage() {
-    if (siteIndex < sites.length) {
-        load_page(siteIndex);
-        window.document.title = "MemBench: opened " + (siteIndex + 1) + " / " + sites.length;
-        siteIndex++;
-        setTimeout("nextPage()", perTabPause);
-    } else {
-        setTimeout("finish()", settleWaitTime);
-    }
+  if (siteIndex < sites.length) {
+    load_page(siteIndex);
+    window.document.title = "MemBench: opened " + (siteIndex + 1) + " / " + sites.length;
+    siteIndex++;
+    setTimeout("nextPage()", perTabPause);
+  } else {
+    setTimeout("finish()", settleWaitTime);
+  }
 }
 
 function finish() {
-    running = false;
-    if (closeWindows) closeOpenedWindows();
-    window.alert("Finished");
+  running = false;
+  if (closeWindows) closeOpenedWindows();
+  window.alert("Finished");
 }
 
 function closeOpenedWindows() {
-    for (var i = 0; i < sites.length; i++) {
-        if (windows[i]) {
-            windows[i].close();
-            windows[i] = null;
-        }
+  for (var i = 0; i < sites.length; i++) {
+    if (windows[i]) {
+      windows[i].close();
+      windows[i] = null;
     }
-    window.document.title = "MemBench: closed all opened windows";
-    print("Close all opened windows");
-    running = false;
+  }
+  window.document.title = "MemBench: closed all opened windows";
+  print("Close all opened windows");
+  running = false;
 }
 
 function load_page(n) {
-    print("- Open " + n + ": " + sites[n] + " " + (Date.now() - startTime));
-    windows[n] = window.open(sites[n]);
-    if (!closeWindows) {
-        windows[n] = null
-    }
+  print("- Open " + n + ": " + sites[n] + " " + (Date.now() - startTime));
+  windows[n] = window.open(sites[n]);
+  if (!closeWindows) {
+    windows[n] = null
+  }
 }
 
 </script>
@@ -131,14 +131,14 @@ function load_page(n) {
 <body>
 <h1>MemBench</h1>
 
-<p>Note: This is based a copy of <a href="http://people.mozilla.org/~wmccloskey/mem.htm">Gregor Wagners membench test</a>
+<p><i>Note: This is based on a copy of <a href="http://people.mozilla.org/~wmccloskey/mem.htm">Gregor Wagner's membench test</a></i>
 </p>
 
-<p>This benchmark automatically opens 30 sites with a 10 second pause after each new site. A textbox appears 60 seconds after the last page is loaded indicating that the benchmark has finished. <br>
-    You can see detailed information about your memory behavior if you type <code>about:memory</code> in your Firefox URL bar.<br>
+<p>
+This benchmark automatically opens 30 sites with a 10 second pause after each new site. A textbox appears 60 seconds after the last page is loaded indicating that the benchmark has finished. <br>
 </p>
 <p>
-	You will most likely have to disable the popup blocker for this site.
+You will most likely have to disable the popup blocker for this site. The easiest way to do this is to try running the test, when new windows stop opening come back to this page and choose to allow popups in whatever warning dialog the browser has provided. On Safari you need to globally allow popups via preferences.
 </p>
 
 <button id="button" onclick="startTest()">Start</button>
