@@ -80,12 +80,22 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
 
     def __init__(self, binary, stats, process_count=1,
                  per_tab_pause=PER_TAB_PAUSE,
-                 settle_wait_time=SETTLE_WAIT_TIME):
+                 settle_wait_time=SETTLE_WAIT_TIME,
+                 proxy=None):
         BaseMultiTabTest.__init__(
             self, stats, per_tab_pause, settle_wait_time)
 
         self.binary = binary
         self.process_count = process_count
+        if proxy:
+            proxy_details = proxy.split(':')
+            self.proxy = proxy_details[0]
+            if len(proxy_details) > 1:
+                self.proxy_port = int(proxy_details[1])
+            else:
+                self.proxy_port = 3128
+        else:
+            self.proxy = None
 
     def open_urls(self, urls, marionette_port=24242):
         testvars = {
@@ -99,11 +109,6 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
         e10s = self.process_count > 0
 
         prefs = {
-            # disable network access
-            "network.proxy.socks": "localhost",
-            "network.proxy.socks_port": testvars.get("proxyPort", 3128),
-            "network.proxy.socks_remote_dns": True,
-            "network.proxy.type": 1,  # Socks
 
             # Don't open the first-run dialog, it loads a video
             'startup.homepage_welcome_url': '',
@@ -130,6 +135,15 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
             # Specify a communications port
             "marionette.defaultPrefs.port": marionette_port,
         }
+
+        if self.proxy:
+            # disable network access
+            prefs.update({
+                "network.proxy.socks": self.proxy,
+                "network.proxy.socks_port": self.proxy_port,
+                "network.proxy.socks_remote_dns": True,
+                "network.proxy.type": 1,  # Socks
+            })
 
         profile = mozprofile.FirefoxProfile(preferences=prefs)
 
