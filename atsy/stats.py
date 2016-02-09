@@ -7,17 +7,20 @@ import psutil
 import StringIO
 from subprocess import Popen, PIPE
 
+
 class ProcessNotFoundException(Exception):
     """
     Indicates the desired process tree was not found.
     """
     pass
 
+
 class ProcessStats:
     """
     Wrapper for psutil that provides a cross-platform way of tallying up
     the RSS of a parent process and the USS of its children.
     """
+
     def __init__(self, path_filter, parent_filter):
         self.path_filter = path_filter
         self.parent_filter = parent_filter
@@ -28,8 +31,10 @@ class ProcessStats:
             # in particular it doesn't handle getting the command line of a
             # 64-bit process from a 32-bit python process very well.
             #
-            # Instead we just shell out the WMIC command which works rather well.
-            cmd = "WMIC path win32_process where handle='%d' get Commandline" % (proc.pid)
+            # Instead we just shell out the WMIC command which works rather
+            # well.
+            cmd = "WMIC path win32_process where handle='%d' get Commandline" % (
+                proc.pid)
             process = Popen(cmd.split(), stdout=PIPE)
             (output, err) = process.communicate()
             process.wait()
@@ -41,7 +46,7 @@ class ProcessStats:
             #   path/to/exe --args etc
 
             buf = StringIO.StringIO(output)
-            buf.readline() # header
+            buf.readline()  # header
             for line in buf:
                 if line.strip():
                     return line.strip()
@@ -90,9 +95,11 @@ class ProcessStats:
 
         if not parent_rss:
             if not children_uss:
-                raise ProcessNotFoundException("No processes matched the path filter")
+                raise ProcessNotFoundException(
+                    "No processes matched the path filter")
             else:
-                raise ProcessNotFoundException("No process matched the parent filter")
+                raise ProcessNotFoundException(
+                    "No process matched the parent filter")
 
         print "\nTotal: {:,} bytes\n".format(parent_rss + children_uss)
 

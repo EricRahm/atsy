@@ -28,10 +28,12 @@ SETTLE_WAIT_TIME = 60
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 class BaseMultiTabTest:
+
     def __init__(self, stats,
-             per_tab_pause=PER_TAB_PAUSE,
-             settle_wait_time=SETTLE_WAIT_TIME):
+                 per_tab_pause=PER_TAB_PAUSE,
+                 settle_wait_time=SETTLE_WAIT_TIME):
         self.per_tab_pause = per_tab_pause
         self.settle_wait_time = settle_wait_time
         self.stats = stats
@@ -41,8 +43,9 @@ class BaseMultiTabTest:
 
 
 class ManualMultiTabTest(BaseMultiTabTest):
+
     def __init__(self, binary, stats, per_tab_pause=PER_TAB_PAUSE,
-            settle_wait_time=SETTLE_WAIT_TIME):
+                 settle_wait_time=SETTLE_WAIT_TIME):
         BaseMultiTabTest.__init__(self, stats, per_tab_pause, settle_wait_time)
         self.binary = binary
 
@@ -52,7 +55,7 @@ class ManualMultiTabTest(BaseMultiTabTest):
 
         # Safari prefixes all command-line urls w/ 'file://', escapes the '?'
         # in the query string. So lets just not do that.
-        #manual_test_file = \
+        # manual_test_file = \
         #    "%s?per_tab_pause=%d&settle_wait_time=%d" % \
         #        (urls[0], self.per_tab_pause, self.settle_wait_time)
         manual_test_file = urls[0]
@@ -65,6 +68,7 @@ class ManualMultiTabTest(BaseMultiTabTest):
         self.stats.print_stats(verbose=True)
         p.kill()
 
+
 class FirefoxMultiTabTest(BaseMultiTabTest):
     """
     For Firefox we can't use webdriver with e10s enabled, so instead we use
@@ -73,11 +77,12 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
 
     This is based on the areweslimyet MarionetteTest.
     """
+
     def __init__(self, binary, stats, process_count=1,
-            per_tab_pause=PER_TAB_PAUSE,
-            settle_wait_time=SETTLE_WAIT_TIME):
+                 per_tab_pause=PER_TAB_PAUSE,
+                 settle_wait_time=SETTLE_WAIT_TIME):
         BaseMultiTabTest.__init__(
-                self, stats, per_tab_pause, settle_wait_time)
+            self, stats, per_tab_pause, settle_wait_time)
 
         self.binary = binary
         self.process_count = process_count
@@ -94,35 +99,36 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
         e10s = self.process_count > 0
 
         prefs = {
-          # disable network access
-          "network.proxy.socks": "localhost",
-          "network.proxy.socks_port": testvars.get("proxyPort", 3128),
-          "network.proxy.socks_remote_dns": True,
-          "network.proxy.type": 1, # Socks
+            # disable network access
+            "network.proxy.socks": "localhost",
+            "network.proxy.socks_port": testvars.get("proxyPort", 3128),
+            "network.proxy.socks_remote_dns": True,
+            "network.proxy.type": 1,  # Socks
 
-          # Don't open the first-run dialog, it loads a video
-          'startup.homepage_welcome_url': '',
-          'startup.homepage_override_url': '',
-          'browser.newtab.url': 'about:blank',
+            # Don't open the first-run dialog, it loads a video
+            'startup.homepage_welcome_url': '',
+            'startup.homepage_override_url': '',
+            'browser.newtab.url': 'about:blank',
 
-          # make sure e10s is enabled
-          "browser.tabs.remote.autostart": e10s,
-          "browser.tabs.remote.autostart.1": e10s,
-          "browser.tabs.remote.autostart.2": e10s,
-          "browser.tabs.remote.autostart.3": e10s,
-          "browser.tabs.remote.autostart.4": e10s,
-          "browser.tabs.remote.autostart.5": e10s,
-          "browser.tabs.remote.autostart.6": e10s,
-          "dom.ipc.processCount": self.process_count,
+            # make sure e10s is enabled
+            "browser.tabs.remote.autostart": e10s,
+            "browser.tabs.remote.autostart.1": e10s,
+            "browser.tabs.remote.autostart.2": e10s,
+            "browser.tabs.remote.autostart.3": e10s,
+            "browser.tabs.remote.autostart.4": e10s,
+            "browser.tabs.remote.autostart.5": e10s,
+            "browser.tabs.remote.autostart.6": e10s,
+            "dom.ipc.processCount": self.process_count,
 
-          # prevent "You're using e10s!" dialog from showing up
-          "browser.displayedE10SNotice": 1000,
+            # prevent "You're using e10s!" dialog from showing up
+            "browser.displayedE10SNotice": 1000,
 
-          # override image expiration in hopes of getting less volatile numbers
-          "image.mem.surfacecache.min_expiration_ms": 10000,
+            # override image expiration in hopes of getting less volatile
+            # numbers
+            "image.mem.surfacecache.min_expiration_ms": 10000,
 
-          # Specify a communications port
-          "marionette.defaultPrefs.port": marionette_port,
+            # Specify a communications port
+            "marionette.defaultPrefs.port": marionette_port,
         }
 
         profile = mozprofile.FirefoxProfile(preferences=prefs)
@@ -132,11 +138,11 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
 
         logger = commandline.setup_logging("MarionetteTest", {})
         runner = MarionetteTestRunner(
-                        binary=self.binary,
-                        profile=profile,
-                        logger=logger,
-                        startup_timeout=60,
-                        address="localhost:%d" % marionette_port)
+            binary=self.binary,
+            profile=profile,
+            logger=logger,
+            startup_timeout=60,
+            address="localhost:%d" % marionette_port)
 
         # Add our testvars
         runner.testvars.update(testvars)
@@ -200,9 +206,10 @@ class MultiTabTest(BaseMultiTabTest):
       - Unknown, I chose not to try Opera given it uses blink and we're already
         testing Chrome.
     """
+
     def __init__(self, driver, stats,
-          per_tab_pause=PER_TAB_PAUSE,
-          settle_wait_time=SETTLE_WAIT_TIME):
+                 per_tab_pause=PER_TAB_PAUSE,
+                 settle_wait_time=SETTLE_WAIT_TIME):
         BaseMultiTabTest.__init__(self, stats, per_tab_pause, settle_wait_time)
         self.driver = driver
         self.tabs = driver.window_handles
@@ -211,7 +218,7 @@ class MultiTabTest(BaseMultiTabTest):
         # One of the browsers got grumpy if we didn't load a fake page.
         # This probably isn't necessary anymore, but might help in a desparate
         # situation.
-        #self.driver.get('data:text/html,<html><body>Hello!</body></html>')
+        # self.driver.get('data:text/html,<html><body>Hello!</body></html>')
 
     def open_tab(self, url):
         """
@@ -223,9 +230,11 @@ class MultiTabTest(BaseMultiTabTest):
         orig_handles = self.driver.window_handles
 
         if mozinfo.os == "mac":
-            self.driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + "t")
+            self.driver.find_element_by_tag_name(
+                'body').send_keys(Keys.COMMAND + "t")
         else:
-            self.driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + "t")
+            self.driver.find_element_by_tag_name(
+                'body').send_keys(Keys.CONTROL + "t")
 
         time.sleep(0.25)
 
@@ -260,13 +269,15 @@ class MultiTabTest(BaseMultiTabTest):
         link_doc += '<html><head><title>Links!</title></head><body>'
         id = 0
         for url in urls:
-            link_doc += '<a id="%d" href="%s">%d: %s</a><br>' % (id, url, id, url)
+            link_doc += '<a id="%d" href="%s">%d: %s</a><br>' % (
+                id, url, id, url)
             id += 1
 
         link_doc += '</body><html>'
         self.driver.get(link_doc)
 
-        # Now open each document in a new tab by ctrl+shift clicking the anchor.
+        # Now open each document in a new tab by ctrl+shift clicking the
+        # anchor.
         for tag in self.driver.find_elements_by_tag_name("a"):
             action = ActionChains(self.driver)
 
@@ -275,7 +286,8 @@ class MultiTabTest(BaseMultiTabTest):
             else:
                 ctrl_key = Keys.CONTROL
 
-            action.key_down(ctrl_key).key_down(Keys.SHIFT).click(tag).key_up(Keys.SHIFT).key_up(ctrl_key).perform()
+            action.key_down(ctrl_key).key_down(Keys.SHIFT).click(
+                tag).key_up(Keys.SHIFT).key_up(ctrl_key).perform()
             time.sleep(self.per_tab_pause)
 
         time.sleep(self.settle_wait_time)

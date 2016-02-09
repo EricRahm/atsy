@@ -20,10 +20,12 @@ PER_TAB_PAUSE = 10
 # Default amount of seconds to wait for things to be settled down
 SETTLE_WAIT_TIME = 60
 
+
 class TestMemoryUsage(MarionetteTestCase):
     """
     Marionette test case used to open up tabs and measure memory.
     """
+
     def setUp(self):
         MarionetteTestCase.setUp(self)
 
@@ -33,11 +35,12 @@ class TestMemoryUsage(MarionetteTestCase):
         self.urls = self.testvars["urls"]
         self.pages_to_load = self.testvars.get("entities", len(self.urls))
         self.perTabPause = self.testvars.get("perTabPause", PER_TAB_PAUSE)
-        self.settleWaitTime = self.testvars.get("settleWaitTime", SETTLE_WAIT_TIME)
+        self.settleWaitTime = self.testvars.get(
+            "settleWaitTime", SETTLE_WAIT_TIME)
         self.maxTabs = self.testvars.get("maxTabs", MAX_TABS)
         self.stats = self.testvars.get("stats")
 
-        #self.reset_state()
+        # self.reset_state()
 
     def tearDown(self):
         self.logger.debug("tearing down!")
@@ -63,13 +66,15 @@ class TestMemoryUsage(MarionetteTestCase):
         if tabs_loaded < self.maxTabs and tabs_loaded <= self.pages_loaded:
             full_tab_list = self.marionette.window_handles
 
-            # Trigger opening a new tab by finding the new tab button and clicking it
+            # Trigger opening a new tab by finding the new tab button and
+            # clicking it
             newtab_button = (self.marionette.find_element('id', 'tabbrowser-tabs')
                                             .find_element('anon attribute',
                                                           {'anonid': 'tabs-newtab-button'}))
             newtab_button.click()
 
-            self.wait_for_condition(lambda mn: len(mn.window_handles) == tabs_loaded + 1)
+            self.wait_for_condition(lambda mn: len(
+                mn.window_handles) == tabs_loaded + 1)
 
             # NB: The tab list isn't sorted, so we do a set diff to determine
             #     which is the new tab
@@ -105,7 +110,8 @@ class TestMemoryUsage(MarionetteTestCase):
             old_tabs.remove(tab)
             # Perform a set diff to get the (possibly) new handle
             [new_tab] = set(self.marionette.window_handles) - old_tabs
-            # Update the tab list at the current index to preserve the tab ordering
+            # Update the tab list at the current index to preserve the tab
+            # ordering
             self.tabs[tab_idx] = new_tab
 
         # give the page time to settle
