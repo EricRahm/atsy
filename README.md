@@ -46,10 +46,19 @@ mkdir html/
 mv tp5n html/tp5
 rm tp5n.zip
 
+mkdir logs
+
 mkdir conf
 cp ../atsy/example/comp_analysis_nginx.conf conf/nginx.conf
+cd ..
 ```
 
 ### Running
-1. Launch nginx, I use the config from awsy, so something like `nginx -p nginx_root/ -c conf/nginx.conf`
-2. Launch the example, this assumes chromedriver is in the cwd: `$PATH=$PATH:. python example/comp_analysis.py`
+1. Launch nginx, I use the config from awsy, so something like:
+```bash
+nginx -p nginx_root/ -c conf/nginx.conf
+```
+2. Launch the example, this assumes chromedriver is in the cwd:
+```bash
+PATH=$PATH:. python atsy/example/comp_analysis.py
+```
