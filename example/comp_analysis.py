@@ -16,7 +16,8 @@ from atsy.multitab import (
 
 
 def test_browser(browser, stats, binary, urls,
-                 per_tab_pause, settle_wait_time):
+                 per_tab_pause, settle_wait_time,
+                 proxy):
 
     test_options = {
         'per_tab_pause': per_tab_pause,
@@ -26,14 +27,21 @@ def test_browser(browser, stats, binary, urls,
     if browser == 'Chrome':
         options = webdriver.chrome.options.Options()
         options.binary_location = binary
-        driver = webdriver.Chrome(chrome_options=options)
+        caps = options.to_capabilities()
+
+        if proxy:
+            webdriver_proxy = webdriver.Proxy()
+            webdriver_proxy.http_proxy = proxy
+            webdriver_proxy.add_to_capabilities(caps)
+
+        driver = webdriver.Chrome(desired_capabilities=caps)
 
         test = MultiTabTest(driver, stats, **test_options)
         test.open_urls(urls)
 
         driver.quit()
     elif browser == 'Firefox':
-        test = FirefoxMultiTabTest(binary, stats, **test_options)
+        test = FirefoxMultiTabTest(binary, stats, proxy=proxy, **test_options)
         test.open_urls(urls)
     elif browser in ('Safari', 'IE'):
         # Currently this is a manual test, sorry.
@@ -55,13 +63,15 @@ def test_browser(browser, stats, binary, urls,
         raise Exception("Unhandled browser: %s" % browser)
 
 
-def test_browsers(browsers, setup, test_sites, per_tab_pause, settle_wait_time):
+def test_browsers(browsers, setup, test_sites,
+                  per_tab_pause, settle_wait_time, proxy=None):
     for browser in browsers:
         config = setup[mozinfo.os][browser]
         stats = ProcessStats(config['path_filter'], config['parent_filter'])
         binary = config['binary']
 
-        test_browser(browser, stats, binary, test_sites, per_tab_pause, settle_wait_time)
+        test_browser(browser, stats, binary, test_sites,
+                     per_tab_pause, settle_wait_time, proxy)
 
 
 if __name__ == '__main__':
@@ -83,7 +93,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', action='append', dest='browsers',
                         default=[],
                         help='Adds a browser to the list of browsers to test.')
-    parser.add_argument('-u', action='store', dest='conf_file',
+    parser.add_argument('-c', action='store', dest='conf_file',
                         default=default_config,
                         help='A python file containing the test configuration.')
     parser.add_argument('-q', action='store_true', default=False, dest='quick',
@@ -94,6 +104,8 @@ if __name__ == '__main__':
     parser.add_argument('--settle_wait_time', action='store', dest='settle_wait_time',
                         default='60', type=float,
                         help='Amount of time in seconds to wait before measuring memory.')
+    parser.add_argument('--proxy', action='store', dest='proxy', default=None,
+                        help='HTTP proxy to use. e.g "localhost:3128". Only works with Chrome and Firefox currently.')
 
     cmdline = parser.parse_args()
     if not cmdline.browsers:
@@ -110,4 +122,5 @@ if __name__ == '__main__':
         TEST_SITES = TEST_SITES[:3]
 
     test_browsers(cmdline.browsers, SETUP, TEST_SITES,
-                  cmdline.per_tab_pause, cmdline.settle_wait_time)
+                  cmdline.per_tab_pause, cmdline.settle_wait_time,
+                  cmdline.proxy)
