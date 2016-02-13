@@ -5,8 +5,8 @@ A dumping ground for cross-platform browser memory testing.
 An example script can be found under `example/comp_analysis.py`. It uses the [TP5 pageset](http://people.mozilla.org/~jmaher/taloszips/zips/tp5n.zip), but the example can be modified to use any set of URLs.
 
 ### Prereqs
-- nginx
-- The latest [chromedriver](http://chromedriver.storage.googleapis.com/index.html) and unarchive it.
+- nginx (or some other webserver)
+- The latest [chromedriver](http://chromedriver.storage.googleapis.com/index.html)
 - Install **atsy**: `python setup.py install` should do the trick.
 - Install/update the browsers you want to test. Note installation locations.
   - Chrome - [devchannel](https://www.google.com/chrome/browser/desktop/index.html?platform=linux&extra=devchannel)
@@ -55,10 +55,12 @@ cd ..
 
 ### Running
 1. Launch nginx, I use the config from awsy, so something like:  
-  ```bash
+  ```
   nginx -p nginx_root/ -c conf/nginx.conf
   ```
 2. Launch the example, this assumes chromedriver is in the cwd:  
-  ```bash
+  ```
   PATH=$PATH:. python atsy/example/comp_analysis.py
   ```
+
+**Note**: On OSX 10.10.5 you'll need to run the example under `sudo`. On OSX 10.10.11 you're going to need to disable [SIP](https://en.wikipedia.org/wiki/System_Integrity_Protection) most likely.
