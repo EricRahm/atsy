@@ -24,6 +24,6 @@ setup(
     ],
     dependency_links=[
       # We need to use a fork of psutil until USS calculations get integrated.
-      "git+ssh://git@github.com/ericrahm/psutil@release-3.5.0#egg=psutil-3.5.0"
+      "git+https://github.com/ericrahm/psutil@release-3.5.0#egg=psutil-3.5.0"
     ],
 )
