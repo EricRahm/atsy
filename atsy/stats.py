@@ -70,19 +70,12 @@ class ProcessStats:
             except (psutil.AccessDenied, psutil.ZombieProcess):
                 return False
 
-        # On Windows psutil reports the RSS as wset.
-        if mozinfo.os == "win":
-            def rss_uss(info):
-                return (info.wset, info.uss)
-        else:
-            def rss_uss(info):
-                return (info.rss, info.uss)
-
         parent_rss = 0
         children_uss = 0
 
         for p in filter(wrapped_path_filter, psutil.process_iter()):
-            (rss, uss) = rss_uss(p.memory_info_ex())
+            rss = p.memory_info().rss
+            uss = p.memory_full_info().uss
             cmdline = self.get_cmdline(p)
 
             exe = cmdline if verbose else p.exe()
@@ -115,6 +108,11 @@ if __name__ == "__main__":
         # Test chrome
         stats = ProcessStats(lambda x: "Chrome SxS" in x,
                              lambda x: "/prefetch" not in x)
+        stats.print_stats()
+    elif mozinfo.os == "linux":
+        # Test firefox
+        stats = ProcessStats(lambda x: "firefox-trunk" in x,
+                             lambda x: "plugin-container" not in x)
         stats.print_stats()
     else:
         raise Exception("Implement adhoc test for other platforms")

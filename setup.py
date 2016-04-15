@@ -20,10 +20,6 @@ setup(
     install_requires=[
       "selenium",
       "marionette-client",
-      "psutil==3.5.0",
-    ],
-    dependency_links=[
-      # We need to use a fork of psutil until USS calculations get integrated.
-      "git+https://github.com/ericrahm/psutil@release-3.5.0#egg=psutil-3.5.0"
+      "psutil==4.1.0",
     ],
 )
