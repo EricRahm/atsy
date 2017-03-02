@@ -74,10 +74,10 @@ def test_browsers(browsers, setup, test_sites,
                      per_tab_pause, settle_wait_time, proxy)
 
 
-if __name__ == '__main__':
+def main():
     # Default path to the config file containing the SETUP and TEST_SITES vars.
     default_config = os.path.join(
-            os.path.dirname(__file__), 'comp_analysis_conf.py')
+            os.path.dirname(__file__), 'comp_analysis_conf_simple.py')
 
     # Default browsers to test.
     default_browsers = [ 'Chrome', 'Firefox' ]
@@ -116,7 +116,10 @@ if __name__ == '__main__':
         cmdline.settle_wait_time = 0
 
     # This loads |SETUP| and |TEST_SITES|.
-    execfile(cmdline.conf_file)
+    out = {}
+    execfile(cmdline.conf_file, {}, out)
+    TEST_SITES = out['TEST_SITES']
+    SETUP = out['SETUP']
 
     if cmdline.quick and len(TEST_SITES) > 3:
         TEST_SITES = TEST_SITES[:3]
@@ -124,3 +127,7 @@ if __name__ == '__main__':
     test_browsers(cmdline.browsers, SETUP, TEST_SITES,
                   cmdline.per_tab_pause, cmdline.settle_wait_time,
                   cmdline.proxy)
+
+
+if __name__ == '__main__':
+    main()
