@@ -41,7 +41,7 @@ def test_browser(browser, stats, binary, urls,
 
         driver.quit()
     elif browser == 'Firefox':
-        test = FirefoxMultiTabTest(binary, stats, proxy=proxy, **test_options)
+        test = FirefoxMultiTabTest(binary, stats, proxy=proxy, process_count=2, **test_options)
         test.open_urls(urls)
     elif browser in ('Safari', 'IE'):
         # Currently this is a manual test, sorry.
