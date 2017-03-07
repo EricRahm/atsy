@@ -6,7 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-from marionette.runtests import MarionetteTestRunner
+from marionette_harness.runtests import MarionetteTestRunner
 import mozinfo
 from mozlog.structured import commandline
 import mozprofile

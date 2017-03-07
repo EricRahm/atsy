@@ -6,7 +6,7 @@ import time
 import os
 import sys
 
-from marionette import MarionetteTestCase
+from marionette_harness import MarionetteTestCase
 from marionette_driver import Actions
 import mozlog.structured
 from marionette_driver.keys import Keys
