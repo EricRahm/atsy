@@ -71,7 +71,7 @@ SETUP = {
         'Firefox': {
             'binary': 'firefox/firefox-bin',
             'parent_filter': lambda x: 'firefox-bin' in x,
-            'path_filter': lambda x: 'atsy/firefox' in x
+            'path_filter': lambda x: 'atsy-test/firefox' in x
         }
     },
 }
