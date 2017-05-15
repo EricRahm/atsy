@@ -74,16 +74,17 @@ class ProcessStats:
         children_uss = 0
 
         for p in filter(wrapped_path_filter, psutil.process_iter()):
-            rss = p.memory_info().rss
-            uss = p.memory_full_info().uss
+            info = p.memory_full_info()
+            rss = info.rss
+            uss = info.uss
             cmdline = self.get_cmdline(p)
-
             exe = cmdline if verbose else p.exe()
-            print "[%d] - %s\n  RSS - %d\n  USS - %d" % (p.pid, exe, rss, uss)
 
             if self.parent_filter(cmdline):
+                print "[%d] - %s\n  * RSS - %d\n    USS - %d" % (p.pid, exe, rss, uss)
                 parent_rss += rss
             else:
+                print "[%d] - %s\n    RSS - %d\n  * USS - %d" % (p.pid, exe, rss, uss)
                 children_uss += uss
 
         if not parent_rss:
