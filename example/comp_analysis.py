@@ -41,8 +41,10 @@ def test_browser(browser, stats, binary, urls,
 
         driver.quit()
     elif browser == 'Firefox':
-        test = FirefoxMultiTabTest(binary, stats, proxy=proxy, process_count=2, **test_options)
-        test.open_urls(urls)
+        for count in (2, 4, 8):
+            print "FIREFOX WITH %d CONTENT PROCESSES" % count
+            test = FirefoxMultiTabTest(binary, stats, proxy=proxy, process_count=count, **test_options)
+            test.open_urls(urls)
     elif browser in ('Safari', 'IE'):
         # Currently this is a manual test, sorry.
         manual_test = os.path.abspath(os.path.join(
