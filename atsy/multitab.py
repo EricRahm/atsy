@@ -156,7 +156,8 @@ class FirefoxMultiTabTest(BaseMultiTabTest):
             profile=profile,
             logger=logger,
             startup_timeout=60,
-            address="localhost:%d" % marionette_port)
+            address="localhost:%d" % marionette_port,
+            gecko_log="gecko_%d.log" % self.process_count)
 
         # Add our testvars
         runner.testvars.update(testvars)
