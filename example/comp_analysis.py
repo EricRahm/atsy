@@ -17,7 +17,7 @@ from atsy.multitab import (
 
 def test_browser(browser, stats, binary, urls,
                  per_tab_pause, settle_wait_time,
-                 proxy):
+                 proxy, process_count):
 
     test_options = {
         'per_tab_pause': per_tab_pause,
@@ -41,7 +41,7 @@ def test_browser(browser, stats, binary, urls,
 
         driver.quit()
     elif browser == 'Firefox':
-        for count in (2, 4, 8):
+        for count in process_count:
             print "FIREFOX WITH %d CONTENT PROCESSES" % count
             test = FirefoxMultiTabTest(binary, stats, proxy=proxy, process_count=count, **test_options)
             test.open_urls(urls)
@@ -66,14 +66,16 @@ def test_browser(browser, stats, binary, urls,
 
 
 def test_browsers(browsers, setup, test_sites,
-                  per_tab_pause, settle_wait_time, proxy=None):
+                  per_tab_pause, settle_wait_time, proxy=None,
+                  process_count=(2,4,8)):
     for browser in browsers:
         config = setup[mozinfo.os][browser]
         stats = ProcessStats(config['path_filter'], config['parent_filter'])
         binary = config['binary']
 
         test_browser(browser, stats, binary, test_sites,
-                     per_tab_pause, settle_wait_time, proxy)
+                     per_tab_pause, settle_wait_time, proxy,
+                     process_count)
 
 
 def main():
@@ -108,6 +110,9 @@ def main():
                         help='Amount of time in seconds to wait before measuring memory.')
     parser.add_argument('--proxy', action='store', dest='proxy', default=None,
                         help='HTTP proxy to use. e.g "localhost:3128". Only works with Chrome and Firefox currently.')
+    parser.add_argument('--content-processes', action='append', dest='process_count',
+                        default=[], type=float,
+                        help='The number of content processes to use for Firefox.')
 
     cmdline = parser.parse_args()
     if not cmdline.browsers:
@@ -116,6 +121,9 @@ def main():
     if cmdline.quick:
         cmdline.per_tab_pause = 1
         cmdline.settle_wait_time = 0
+
+    if not cmdline.process_count:
+        cmdline.process_count = (2, 4, 8)
 
     # This loads |SETUP| and |TEST_SITES|.
     out = {}
@@ -128,7 +136,7 @@ def main():
 
     test_browsers(cmdline.browsers, SETUP, TEST_SITES,
                   cmdline.per_tab_pause, cmdline.settle_wait_time,
-                  cmdline.proxy)
+                  cmdline.proxy, cmdline.process_count)
 
 
 if __name__ == '__main__':
