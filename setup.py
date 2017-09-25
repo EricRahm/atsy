@@ -19,7 +19,7 @@ setup(
     packages=["atsy"],
     install_requires=[
       "selenium",
-      "marionette-harness==4.0",
+      "marionette-harness",
       "psutil==4.1.0",
     ],
     entry_points={
