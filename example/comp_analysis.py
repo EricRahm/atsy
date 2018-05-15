@@ -12,7 +12,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from atsy.stats import ProcessStats
 from atsy.multitab import (
-    FirefoxMultiTabTest, ManualMultiTabTest, MultiTabTest)
+    ManualMultiTabTest, MultiTabTest)
 
 
 def test_browser(browser, stats, binary, urls,
@@ -40,11 +40,28 @@ def test_browser(browser, stats, binary, urls,
         test.open_urls(urls)
 
         driver.quit()
-    elif browser == 'Firefox':
+    elif browser == "Firefox":
         for count in process_count:
             print "FIREFOX WITH %d CONTENT PROCESSES" % count
-            test = FirefoxMultiTabTest(binary, stats, proxy=proxy, process_count=count, **test_options)
+
+            options = webdriver.firefox.options.Options()
+            options.binary = binary
+            options.set_preference("dom.ipc.processCount", int(count))
+            # Don't open the first-run dialog, it loads a video
+            options.set_preference('startup.homepage_welcome_url', '')
+            options.set_preference('startup.homepage_override_url', '')
+            options.set_preference('browser.newtab.url', 'about:blank')
+
+            # override image expiration in hopes of getting less volatile
+            # numbers
+            options.set_preference("image.mem.surfacecache.min_expiration_ms", 10000);
+
+            driver = webdriver.Firefox(options=options, proxy=proxy)
+
+            test = MultiTabTest(driver, stats, **test_options)
             test.open_urls(urls)
+
+            driver.quit()
     elif browser in ('Safari', 'IE'):
         # Currently this is a manual test, sorry.
         manual_test = os.path.abspath(os.path.join(

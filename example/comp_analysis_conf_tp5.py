@@ -68,13 +68,14 @@ SETUP = {
     'linux': {
         'Chrome': {
             'binary': '/opt/google/chrome-unstable/google-chrome-unstable',
+            #'binary': '/opt/google/chrome-beta/google-chrome-beta',
             'parent_filter': lambda x: 'chrome --type' not in x,
             'path_filter': lambda x: 'chrome-unstable' in x
         },
         'Firefox': {
-            'binary': '/home/erahm/dev/atsy_test/firefox/firefox-bin',
+            'binary': '/home/erahm/dev/tools/atsy-install/firefox/firefox-bin',
             'parent_filter': lambda x: 'firefox-bin -content' not in x,
-            'path_filter': lambda x: 'atsy_test/firefox' in x
+            'path_filter': lambda x: 'atsy-install/firefox' in x
         }
     },
 }
