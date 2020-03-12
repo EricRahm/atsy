@@ -20,7 +20,7 @@ setup(
     install_requires=[
       "selenium",
       "marionette-harness",
-      "psutil==4.1.0",
+      "psutil==5.6.6",
     ],
     entry_points={
       'console_scripts': ['comp_analysis=example.comp_analysis:main']
